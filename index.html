@@ -1,87 +1,202 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Basic Tetris Game</title>
-  <style>
-    .game-container {
-    width: 260px;
-    margin: 0 auto;
-}
-
-.game-board {
-    width: 200px;
-    height: 400px;
-    border: 1px solid #000;
-    background-color: #fff;
-}
-
-.score {
-    margin-top: 10px;
-    text-align: center;
-}
-  </style>
+    <title>Tetris</title>
 </head>
 <body>
-  <div id="game-board">
-   
-  </div>
+    <canvas id="tetrisCanvas" width="240" height="400"></canvas>
 
-  <script>
-   const gameBoard = document.querySelector('.game-board');
-const scoreElement = document.getElementById('score');
-let score = 0;
+    <script>
+        const canvas = document.getElementById('tetrisCanvas');
+        const context = canvas.getContext('2d');
 
-// Create the game board grid
-const grid = [];
-for (let row = 0; row < 20; row++) {
-    grid[row] = [];
-    for (let col = 0; col < 10; col++) {
-        grid[row][col] = '';
-    }
-}
+        const blockSize = 20;
+        const numberOfRows = canvas.height / blockSize;
+        const numberOfColumns = canvas.width / blockSize;
 
-// Render the game board
-function render() {
-    let html = '';
-    for (let row = 0; row < 20; row++) {
-        for (let col = 0; col < 10; col++) {
-            html += `<div class="cell ${grid[row][col]}"></div>`;
+        // Create the game board
+        let board = [];
+        for (let row = 0; row < numberOfRows; row++) {
+            board[row] = [];
+            for (let col = 0; col < numberOfColumns; col++) {
+                board[row][col] = 'white';
+            }
         }
-    }
-    gameBoard.innerHTML = html;
-}
 
-// Update the score
-function updateScore() {
-    score++;
-    scoreElement.textContent = score;
-}
+        // Draw the board
+        function drawBoard() {
+            for (let row = 0; row < numberOfRows; row++) {
+                for (let col = 0; col < numberOfColumns; col++) {
+                    drawBlock(col, row, board[row][col]);
+                }
+            }
+        }
 
-// Handle keyboard events
-document.addEventListener('keydown', (event) => {
-    // Handle arrow keys
-    if (event.key === 'ArrowLeft') {
-        // Move the current piece left
-    } else if (event.key === 'ArrowRight') {
-        // Move the current piece right
-    } else if (event.key === 'ArrowDown') {
-        // Move the current piece down
-    } else if (event.key === 'ArrowUp') {
-        // Rotate the current piece
-    }
-});
+        // Draw a block
+        function drawBlock(x, y, color) {
+            context.fillStyle = color;
+            context.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+            context.strokeStyle = 'black';
+            context.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
+        }
 
-// Game loop
-function gameLoop() {
-    // Update the game state
-    // Render the game board
-    // Check for game over condition
-    // Request the next frame
-    requestAnimationFrame(gameLoop);
-}
+        // Create a Tetromino shape
+        function createTetromino(shape, color) {
+            return {
+                shape: shape,
+                color: color,
+                x: Math.floor(numberOfColumns / 2) - Math.floor(shape[0].length / 2),
+                y: 0
+            };
+        }
 
-// Start the game loop
-gameLoop();
-  </script>
+        // Array of Tetromino shapes
+        const tetrominoes = [
+            [[1, 1, 1, 1]],
+            [[1, 1], [1, 1]],
+            [[1, 1, 0], [0, 1, 1]],
+            [[0, 1, 1], [1, 1, 0]],
+            [[1, 1, 1], [0, 1, 0]],
+            [[1, 1, 1], [1, 0, 0]]
+        ];
+        const tetrominoColors = ['cyan', 'yellow', 'purple', 'green', 'red', 'blue'];
+
+        // Create a random Tetromino
+        function createRandomTetromino() {
+            const randomIndex = Math.floor(Math.random() * tetrominoes.length);
+            return createTetromino(tetrominoes[randomIndex], tetrominoColors[randomIndex]);
+        }
+
+        // Draw the current Tetromino
+        function drawTetromino() {
+            for (let row = 0; row < currentTetromino.shape.length; row++) {
+                for (let col = 0; col < currentTetromino.shape[row].length; col++) {
+                    if (currentTetromino.shape[row][col]) {
+                        drawBlock(currentTetromino.x + col, currentTetromino.y + row, currentTetromino.color);
+                    }
+                }
+            }
+        }
+
+        // Clear the current Tetromino
+        function clearTetromino() {
+            for (let row = 0; row < currentTetromino.shape.length; row++) {
+                for (let col = 0; col < currentTetromino.shape[row].length; col++) {
+                    if (currentTetromino.shape[row][col]) {
+                        drawBlock(currentTetromino.x + col, currentTetromino.y + row, 'white');
+                    }
+                }
+            }
+        }
+
+        // Move the current Tetromino down
+        function moveDown() {
+            clearTetromino();
+            currentTetromino.y++;
+            drawTetromino();
+        }
+
+        // Check if a Tetromino can move down
+        function canMoveDown() {
+            for (let row = 0; row < currentTetromino.shape.length; row++) {
+                for (let col = 0; col < currentTetromino.shape[row].length; col++) {
+                    if (currentTetromino.shape[row][col]) {
+                        if (currentTetromino.y + row >= numberOfRows - 1 || board[currentTetromino.y + row + 1][currentTetromino.x + col] !== 'white') {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        // Rotate the current Tetromino
+        function rotate() {
+            const rotatedShape = [];
+            for (let col = 0; col < currentTetromino.shape[0].length; col++) {
+                rotatedShape[col] = [];
+                for (let row = currentTetromino.shape.length - 1; row >= 0; row--) {
+                    rotatedShape[col][currentTetromino.shape.length - 1 - row] = currentTetromino.shape[row][col];
+                }
+            }
+
+            clearTetromino();
+            currentTetromino.shape = rotatedShape;
+            drawTetromino();
+        }
+
+        // Move the current Tetromino left
+        function moveLeft() {
+            clearTetromino();
+            currentTetromino.x--;
+            drawTetromino();
+        }
+
+        // Move the current Tetromino right
+        function moveRight() {
+            clearTetromino();
+            currentTetromino.x++;
+            drawTetromino();
+        }
+
+        // Update the game state
+        function update() {
+            if (canMoveDown()) {
+                moveDown();
+            } else {
+                // Lock the current Tetromino
+                for (let row = 0; row < currentTetromino.shape.length; row++) {
+                    for (let col = 0; col < currentTetromino.shape[row].length; col++) {
+                        if (currentTetromino.shape[row][col]) {
+                            board[currentTetromino.y + row][currentTetromino.x + col] = currentTetromino.color;
+                        }
+                    }
+                }
+
+                // Check for full rows
+                for (let row = 0; row < numberOfRows; row++) {
+                    if (board[row].every(block => block !== 'white')) {
+                        // Remove the full row
+                        board.splice(row, 1);
+                        // Add an empty row at the top
+                        board.unshift(Array(numberOfColumns).fill('white'));
+                    }
+                }
+
+                currentTetromino = createRandomTetromino();
+            }
+
+            drawBoard();
+        }
+
+        // Game loop
+        let currentTetromino = createRandomTetromino();
+        setInterval(update, 1000);
+
+        // Handle keyboard events
+        document.addEventListener('keydown', function (event) {
+            switch (event.keyCode) {
+                case 37: // Left arrow
+                    if (currentTetromino.x > 0) {
+                        moveLeft();
+                    }
+                    break;
+                case 39: // Right arrow
+                    if (currentTetromino.x < numberOfColumns - currentTetromino.shape[0].length) {
+                        moveRight();
+                    }
+                    break;
+                case 40: // Down arrow
+                    if (canMoveDown()) {
+                        moveDown();
+                    }
+                    break;
+                case 38: // Up arrow
+                    rotate();
+                    break;
+            }
+        });
+    </script>
 </body>
 </html>
