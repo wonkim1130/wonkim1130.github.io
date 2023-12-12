@@ -1,33 +1,123 @@
+html
+Copy code
 <!DOCTYPE html>
 <html>
-  <head>
-    
-  </head>
-  <body>
-
-    
-    <h2>What is orange?</h2>
+<head>
+    <title>Tetris</title>
     <style>
-.button {
-  background-color: #f4511e;
-  border: none;
-  color: white;
-  padding: 16px 32px;
-  text-align: center;
-  font-size: 16px;
-  margin: 4px 2px;
-  opacity: 0.6;
-  transition: 0.3s;
-  display: inline-block;
-  text-decoration: none;
-  cursor: pointer;
-}
+        #game-board {
+            width: 200px;
+            height: 400px;
+            border: 1px solid black;
+            position: relative;
+            overflow: hidden;
+        }
 
-.button:hover {opacity: 1}
-</style>
-    
-    <a href="https://youtu.be/dQw4w9WgXcQ?feature=shared"><button>Color</button></a> 
-    <a href="https://youtu.be/dQw4w9WgXcQ?feature=shared"><button>Fruit</button></a>
+        .block {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+        }
 
-  </body>
+        .active {
+            background-color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-board"></div>
+
+    <script>
+        const boardWidth = 10;
+        const boardHeight = 20;
+        const blockSize = 20;
+
+        let board = [];
+        let activeBlock = null;
+
+        function createBlock() {
+            // Create a new block and add it to the board
+        }
+
+        function moveBlockDown() {
+            // Move the active block down by one row
+        }
+
+        function moveBlockLeft() {
+            // Move the active block to the left
+        }
+
+        function moveBlockRight() {
+            // Move the active block to the right
+        }
+
+        function rotateBlock() {
+            // Rotate the active block
+        }
+
+        function updateBoard() {
+            // Update the board with the current block positions
+        }
+
+        function checkGameOver() {
+            // Check if the game is over
+        }
+
+        function clearLines() {
+            // Clear completed lines and update the board
+        }
+
+        function updateGame() {
+            // Update the game state (e.g., move blocks, check for collisions)
+        }
+
+        function drawBoard() {
+            const gameBoard = document.getElementById('game-board');
+            gameBoard.innerHTML = '';
+
+            for (let row = 0; row < boardHeight; row++) {
+                for (let col = 0; col < boardWidth; col++) {
+                    const block = document.createElement('div');
+                    block.className = 'block';
+                    block.style.top = row * blockSize + 'px';
+                    block.style.left = col * blockSize + 'px';
+
+                    if (board[row][col]) {
+                        block.classList.add('active');
+                    }
+
+                    gameBoard.appendChild(block);
+                }
+            }
+        }
+
+        function gameLoop() {
+            updateGame();
+            drawBoard();
+
+            if (!checkGameOver()) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function init() {
+            // Initialize the game board and active block
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'ArrowUp') {
+                rotateBlock();
+            } else if (event.key === 'ArrowDown') {
+                moveBlockDown();
+            } else if (event.key === 'ArrowLeft') {
+                moveBlockLeft();
+            } else if (event.key === 'ArrowRight') {
+                moveBlockRight();
+            }
+        });
+
+        init();
+    </script>
+</body>
 </html>
