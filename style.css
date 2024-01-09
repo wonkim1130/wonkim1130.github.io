@@ -29,3 +29,7 @@ li {
   letter-spacing: 1px;
   font-family: "Raleway", sans-serif
 }
+
+img {
+  border: 5px solid #555;
+}
